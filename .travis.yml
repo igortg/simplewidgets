@@ -1,0 +1,27 @@
+language: python
+
+python:
+  - 2.7
+  
+virtualenv:
+  system_site_packages: true  
+
+install:
+ # PySide
+ - sudo apt-get install -qq python-pyside
+ # PyQt4
+ - sudo apt-get install -qq python-qt4
+
+ # PyTest
+ - pip install pytest
+ - pip install pytest-qt
+
+before_script:
+ - export DISPLAY=:99.0
+ - sh -e /etc/init.d/xvfb start
+ - sleep 3
+
+script:
+ - python setup.py develop
+ - py.test
+
