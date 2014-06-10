@@ -9,8 +9,6 @@ virtualenv:
 install:
  # PySide
  - sudo apt-get install -qq python-pyside
- # PyQt4
- - sudo apt-get install -qq python-qt4
 
  # PyTest
  - pip install pytest

@@ -1,6 +1,5 @@
 import locale
 import weakref
-from PyQt4.QtCore import QVariant
 from PySide.QtGui import QLineEdit, QIntValidator, QComboBox
 
 
