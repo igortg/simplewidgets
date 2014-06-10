@@ -14,8 +14,8 @@ class DemoWidget(SimpleWidget):
 
 
     def __init__(self):
-        super(DemoWidget, self).__init__()
         self.dynamic_choices = range(10)
+        super(DemoWidget, self).__init__()
 
 
 
@@ -25,27 +25,25 @@ class DemoDialog(SimpleDialog):
 
 
 def test_simple_widget(qtbot):
-    demo = DemoWidget()
-    widget = demo.build_widget()
+    widget = DemoWidget()
     qtbot.addWidget(widget)
     widget.show()
     qtbot.keyClicks(widget.name_widget, "John")
     widget.age_widget.clear()
     qtbot.keyClicks(widget.age_widget, "45")
-    data = demo.get_data()
+    data = widget.get_data()
     assert data[0] == "John"
     assert data.age == 45
     assert data.sex == "Female"
     assert data.dynamic == "0"
-    demo.dynamic_choices = range(10, 20)
-    demo.update_view()
-    data = demo.get_data()
+    widget.dynamic_choices = range(10, 20)
+    widget.update_view()
+    data = widget.get_data()
     assert data.dynamic == "10"
 
 
 def test_simple_dialog(qtbot):
-    demo = DemoDialog()
-    widget = demo.build_widget()
+    widget = DemoDialog()
     widget.accept = Mock()
     widget.reject = Mock()
     qtbot.addWidget(widget)
