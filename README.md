@@ -26,5 +26,5 @@ This  code creates the window below. `get_data()` method returns a named tuple w
       
 ![Simple Example](doc/simple-example.png)
 
-[![ci](http://img.shields.io/travis/nicoddemus/simplewidgets.svg)](https://travis-ci.org/nicoddemus/simplewidgets)
+[![Build Status](https://travis-ci.org/itghisi/simplewidgets.svg?branch=master)](https://travis-ci.org/itghisi/simplewidgets)
 
