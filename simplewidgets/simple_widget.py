@@ -1,3 +1,4 @@
+from collections import namedtuple
 from PySide import QtGui
 from PySide.QtCore import Qt, SIGNAL
 from simplewidgets.fields import BaseInputField
@@ -14,8 +15,7 @@ class _SimpleWidgetMeta(type):
         for attr_name, value in full_dict.items():
             if isinstance(value, BaseInputField):
                 fields.append((value.order, attr_name))
-        if fields:
-            class_dict["_ui_fields"] = [field_name for _, field_name in sorted(fields)]
+        class_dict["_ui_fields"] = [field_name for _, field_name in sorted(fields)]
         return type.__new__(mcs, name, bases, class_dict)
 
 
@@ -27,7 +27,15 @@ class SimpleWidget(object):
 
     def __init__(self):
         self._layout = None
+        for field_name in self._ui_fields:
+            field = getattr(self, field_name)
+            setattr(self, field_name, field.create_copy(self))
         self._field_widgets = {}
+        self._data_type = namedtuple("SimpleData", self._ui_fields)
+
+
+    def fields(self):
+        return [getattr(self, field_name) for field_name in self._ui_fields]
 
 
     def _instancialize_widget(self, parent):
@@ -38,11 +46,11 @@ class SimpleWidget(object):
         widget = self._instancialize_widget(parent)
         self._layout = QtGui.QGridLayout(widget)
         for field_name in self._ui_fields:
-            self.create_field_line(widget, field_name)
+            self._create_field_line(widget, field_name)
         return widget
 
 
-    def create_field_line(self, parent, field_name):
+    def _create_field_line(self, parent, field_name):
         field = getattr(self, field_name)
         label = QtGui.QLabel(parent)
         label.setText(field.label)
@@ -56,12 +64,17 @@ class SimpleWidget(object):
 
 
     def get_data(self):
-        data = SimpleData()
+        field_values = {}
         for field_name in self._ui_fields:
             field = getattr(self, field_name)
             widget = self._field_widgets[field_name]
-            setattr(data, field_name, field.get_value_from(widget))
-        return data
+            field_values[field_name] = field.get_value_from(widget)
+        return self._data_type(**field_values)
+
+
+    def update_view(self):
+        for field in self.fields():
+            field.update_view()
 
 
 class SimpleDialog(SimpleWidget):
@@ -81,9 +94,6 @@ class SimpleDialog(SimpleWidget):
         return widget
 
 
-    def ask_data(self, parent):
+    def exec_accepted(self, parent=None):
         widget = self.build_widget(parent)
-        return widget.exec_()
-
-class SimpleData(object):
-    pass
+        return widget.exec_() == QtGui.QDialog.Accepted
