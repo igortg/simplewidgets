@@ -1,7 +1,6 @@
 from collections import namedtuple, OrderedDict
 import warnings
-from PySide import QtGui
-from PySide.QtCore import Qt, SIGNAL
+from simplewidgets.PyQt import QtGui, QtCore
 from simplewidgets.fields import BaseInputField
 
 
@@ -105,8 +104,8 @@ class SimpleDialog(BaseSimpleWidget, QtGui.QDialog):
         QDialogButtonBox = QtGui.QDialogButtonBox
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self._layout.addWidget(self.button_box, self._layout.rowCount() + 1, 0, 1, self.NUM_LAYOUT_COLS)
-        self.connect(self.button_box, SIGNAL("accepted()"), self.accept)
-        self.connect(self.button_box, SIGNAL("rejected()"), self.reject)
+        self.connect(self.button_box, QtCore.SIGNAL("accepted()"), self.accept)
+        self.connect(self.button_box, QtCore.SIGNAL("rejected()"), self.reject)
 
 
     def exec_accepted(self):

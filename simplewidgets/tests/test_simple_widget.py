@@ -1,4 +1,4 @@
-from PySide.QtCore import Qt
+from simplewidgets.PyQt.QtCore import Qt
 
 from simplewidgets.fields import LineTextField, IntField, ChoiceField
 from simplewidgets.simple_widget import SimpleWidget, SimpleDialog

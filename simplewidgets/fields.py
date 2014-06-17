@@ -1,7 +1,7 @@
-from PySide import QtCore
+from simplewidgets.PyQt import QtCore
 import locale
 import weakref
-from PySide.QtGui import QLineEdit, QIntValidator, QComboBox
+from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QComboBox
 
 
 class BaseInputField(object):
