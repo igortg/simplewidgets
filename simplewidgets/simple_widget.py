@@ -1,4 +1,5 @@
-from collections import namedtuple
+from collections import namedtuple, OrderedDict
+import warnings
 from PySide import QtGui
 from PySide.QtCore import Qt, SIGNAL
 from simplewidgets.fields import BaseInputField
@@ -9,31 +10,34 @@ class BaseSimpleWidget(object):
     NUM_LAYOUT_COLS = 2
 
     def __init__(self):
-        fields = []
+        self._fields = OrderedDict()
+        fields_order = []
+        #TODO: create Fields declared in base classes
         for attr_name, value in self.__class__.__dict__.items():
             if isinstance(value, BaseInputField):
-                fields.append((value.order, attr_name))
-                setattr(self, attr_name, value.create_copy(self))
+                fields_order.append((value.order, attr_name, value))
+                self._check_base_attributes_override(attr_name)
+        for _, field_name, field in sorted(fields_order):
+            self._fields[field_name] = field.create_copy(self)
         # Preserve the order in which Fields were declared
-        self._sorted_field_names = [attr_name for _, attr_name in sorted(fields)]
         self._layout = None
         self._field_widgets = {}
-        self._data_type = namedtuple("SimpleData", self._sorted_field_names)
+        self._data_type = namedtuple("SimpleData", self._fields.keys())
         self.build_widget()
 
 
     def fields(self):
-        return [getattr(self, field_name) for field_name in self._sorted_field_names]
+        return self._fields.values()
 
 
     def build_widget(self, parent=None):
         self._layout = QtGui.QGridLayout(self)
-        for field_name in self._sorted_field_names:
+        for field_name in self._fields:
             self._create_field_line(field_name)
 
 
     def _create_field_line(self, field_name):
-        field = getattr(self, field_name)
+        field = self._fields[field_name]
         label = QtGui.QLabel(self)
         label.setText(field.label)
         setattr(self, "{0}_label".format(field_name), label)
@@ -47,7 +51,7 @@ class BaseSimpleWidget(object):
 
     def get_data(self):
         field_values = {}
-        for field_name in self._sorted_field_names:
+        for field_name in self._fields:
             field = getattr(self, field_name)
             widget = self._field_widgets[field_name]
             field_values[field_name] = field.get_value_from(widget)
@@ -57,6 +61,27 @@ class BaseSimpleWidget(object):
     def update_view(self):
         for field in self.fields():
             field.update_view()
+
+
+    def get_field_widget(self, attr_name):
+        #TODO: fix protected access
+        return self._fields[attr_name]._widget
+
+
+    def bind_data(self, field_name, instance, attr_name):
+        self._fields[field_name].bind_attribute(instance, attr_name)
+
+
+    def _check_base_attributes_override(self, attr_name):
+        """
+        Check if a Field declaration is overriding some base class attribute (It's common to declare a `size`
+        field which override `QWidget.size` function)
+
+        :param attr_name: the field name
+        """
+        for base_class in self.__class__.__bases__:
+            if hasattr(base_class, attr_name):
+                warnings.warn("Field {0} is overwriting attribute from {1}".format(attr_name, base_class.__name__))
 
 
 class SimpleWidget(BaseSimpleWidget, QtGui.QWidget):

@@ -1,3 +1,4 @@
+from PySide import QtCore
 import locale
 import weakref
 from PySide.QtGui import QLineEdit, QIntValidator, QComboBox
@@ -14,7 +15,9 @@ class BaseInputField(object):
         BaseInputField._counter += 1
         self.label = label
         self.initial = initial
+        self.simple_widget = None
         self._widget = None
+        self._bindings = weakref.WeakKeyDictionary()
 
 
     def create_widget(self, parent):
@@ -48,6 +51,10 @@ class BaseInputField(object):
         raise NotImplementedError("get_value_from")
 
 
+    def bind_attribute(self, instance, attr_name):
+        self._bindings[instance] = attr_name
+
+
     def create_copy(self, simple_widget):
         """
         BaseInputFields are always defined in the class level. This method is called to create a unique instance of
@@ -71,6 +78,7 @@ class LineTextField(BaseInputField):
         assert self._widget is None, "create_widget() must be called only once"
         self._widget = QLineEdit(parent)
         self._widget.setText(self.initial)
+        parent.connect(self._widget, QtCore.SIGNAL("editingFinished ()"), self.on_editing_finished)
         return self._widget
 
 
@@ -80,6 +88,11 @@ class LineTextField(BaseInputField):
 
     def get_value_from(self, widget):
         return widget.text()
+
+
+    def on_editing_finished(self):
+        for instance, attr_name in self._bindings.items():
+            setattr(instance, attr_name, self._widget.text())
 
 
 class IntField(LineTextField):
