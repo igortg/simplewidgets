@@ -1,6 +1,7 @@
 from collections import namedtuple, OrderedDict
 import warnings
 from simplewidgets.PyQt import QtGui, QtCore
+from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.fields import BaseInputField
 
 
