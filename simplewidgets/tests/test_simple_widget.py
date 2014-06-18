@@ -18,7 +18,8 @@ class DemoWidget(SimpleWidget):
 
     name = LineTextField(label="Name")
     age = IntField(30, label="Age")
-    sex = ChoiceField(["Male", "Female"], initial="Female", label="Sex")
+    sex = ChoiceField([(0, "Male"),(1, "Female")], initial=1, label="Sex")
+    education = ChoiceField(["Undergrad", "Grad"], initial="Grad", label="Education")
     dynamic = ChoiceField("dynamic_choices", label="Dynamic")
 
 
@@ -53,12 +54,12 @@ def test_simple_widget(qtbot):
     data = widget.get_data()
     assert data[0] == "John"
     assert data.age == 45
-    assert data.sex == "Female"
-    assert data.dynamic == "0"
+    assert data.sex == 1
+    assert data.dynamic == 0
     widget.dynamic_choices = range(10, 20)
     widget.update_view()
     data = widget.get_data()
-    assert data.dynamic == "10"
+    assert data.dynamic == 10
 
 
 def test_simple_dialog(qtbot):

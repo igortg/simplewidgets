@@ -10,34 +10,45 @@ class BaseSimpleWidget(object):
     NUM_LAYOUT_COLS = 2
 
     def __init__(self):
-        self._fields = OrderedDict()
         fields_order = []
         #TODO: create Fields declared in base classes
         for attr_name, value in self.__class__.__dict__.items():
             if isinstance(value, BaseInputField):
                 fields_order.append((value.order, attr_name, value))
                 self._check_base_attributes_override(attr_name)
+        self._sorted_field_names = []
         for _, field_name, field in sorted(fields_order):
-            self._fields[field_name] = field.create_copy(self)
+            setattr(self, field_name, field.create_copy(self))
+            self._sorted_field_names.append(field_name)
         # Preserve the order in which Fields were declared
         self._layout = None
         self._field_widgets = {}
-        self._data_type = namedtuple("SimpleData", self._fields.keys())
+        self._data_type = namedtuple("SimpleData", self._sorted_field_names)
         self.build_widget()
 
 
+    def _get_field(self, field_name):
+        """
+        Get the Field object for the given name
+
+        :param field_name: str
+        :rtype: BaseInputField
+        """
+        return getattr(self, field_name)
+
+
     def fields(self):
-        return self._fields.values()
+        return [self._get_field(field_name) for field_name in self._sorted_field_names]
 
 
     def build_widget(self, parent=None):
         self._layout = QtGui.QGridLayout(self)
-        for field_name in self._fields:
+        for field_name in self._sorted_field_names:
             self._create_field_line(field_name)
 
 
     def _create_field_line(self, field_name):
-        field = self._fields[field_name]
+        field = self._get_field(field_name)
         label = QtGui.QLabel(self)
         label.setText(field.label)
         setattr(self, "{0}_label".format(field_name), label)
@@ -51,10 +62,9 @@ class BaseSimpleWidget(object):
 
     def get_data(self):
         field_values = {}
-        for field_name in self._fields:
-            field = getattr(self, field_name)
-            widget = self._field_widgets[field_name]
-            field_values[field_name] = field.get_value_from(widget)
+        for field_name in self._sorted_field_names:
+            field = self._get_field(field_name)
+            field_values[field_name] = field.get_value_from()
         return self._data_type(**field_values)
 
 
@@ -65,11 +75,11 @@ class BaseSimpleWidget(object):
 
     def get_field_widget(self, attr_name):
         #TODO: fix protected access
-        return self._fields[attr_name]._widget
+        return self._get_field(attr_name)._widget
 
 
     def bind_data(self, field_name, instance, attr_name):
-        self._fields[field_name].bind_attribute(instance, attr_name)
+        self._get_field(field_name).bind_attribute(instance, attr_name)
 
 
     def _check_base_attributes_override(self, attr_name):

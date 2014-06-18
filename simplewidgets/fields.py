@@ -40,13 +40,9 @@ class BaseInputField(object):
         raise NotImplementedError("update_view")
 
 
-    def get_value_from(self, widget):
+    def get_value_from(self):
         """
         Get a data value from the given widget.
-
-        :param QWidget widget: the widget created by create_widget
-
-        :rtype: type
         """
         raise NotImplementedError("get_value_from")
 
@@ -86,8 +82,8 @@ class LineTextField(BaseInputField):
         pass
 
 
-    def get_value_from(self, widget):
-        return widget.text()
+    def get_value_from(self):
+        return self._widget.text()
 
 
     def on_editing_finished(self):
@@ -108,11 +104,14 @@ class IntField(LineTextField):
         pass
 
 
-    def get_value_from(self, widget):
-        return locale.atoi(widget.text())
+    def get_value_from(self):
+        return locale.atoi(self._widget.text())
 
 
 class ChoiceField(BaseInputField):
+    """
+    A SimpleWidget field that displays a Combo with the given choices
+    """
 
 
     def __init__(self, choices, initial="", label=""):
@@ -127,15 +126,33 @@ class ChoiceField(BaseInputField):
 
 
     def update_view(self):
-        if isinstance(self._choices, list):
-            choices = self._choices
-        elif isinstance(self._choices, str):
-            choices = getattr(self.simple_widget, self._choices)
+        choices = self._get_choices()
         self._widget.clear()
-        self._widget.addItems([str(choice) for choice in choices])
+        self._widget.addItems([choice[1] for choice in choices])
         if self.initial:
-            self._widget.setCurrentIndex(choices.index(self.initial))
+            values = [choice[0] for choice in choices]
+            self._widget.setCurrentIndex(values.index(self.initial))
 
 
-    def get_value_from(self, widget):
-        return widget.currentText()
+    def get_value_from(self):
+        current_text = self._widget.currentText()
+        for choice_value, text in self._get_choices():
+            if current_text == text:
+                return choice_value
+
+
+    def _get_choices(self):
+        """
+        Returns the field choices as a list of tuples (choice_value, choice_text).
+
+        :rtype: list
+        """
+        if isinstance(self._choices, str):
+            choices = getattr(self.simple_widget, self._choices)
+        else:
+            choices = self._choices
+        assert isinstance(choices, (list, tuple)), "choices has an invalid type"
+        for i, choice in enumerate(choices):
+            if not isinstance(choice, (list, tuple)):
+                choices[i] = (choice, str(choice))
+        return choices
