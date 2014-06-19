@@ -80,11 +80,18 @@ class BaseInputField(object):
 class LineTextField(BaseInputField):
 
 
+
+    def __init__(self, initial="", label=""):
+        super(LineTextField, self).__init__(initial, label)
+        self.on_editing_finished = Observable()
+
+
     def create_widget(self, parent):
         assert self._widget is None, "create_widget() must be called only once"
         self._widget = QLineEdit(parent)
-        self._widget.setText(self.initial)
-        parent.connect(self._widget, SIGNAL("editingFinished ()"), self.on_editing_finished)
+        #TODO: Create a method to widget content
+        self._widget.setText(str(self.initial))
+        self._widget.connect(self._widget, SIGNAL("editingFinished ()"), self._slot_editing_finished)
         return self._widget
 
 
@@ -96,18 +103,16 @@ class LineTextField(BaseInputField):
         return self._widget.text()
 
 
-    def on_editing_finished(self):
-        for instance, attr_name in self._bindings.items():
-            setattr(instance, attr_name, self._widget.text())
+    def _slot_editing_finished(self):
+        self.on_editing_finished.notify()
 
 
 class IntField(LineTextField):
 
     def create_widget(self, parent):
-        self._widget = widget = QLineEdit(parent)
-        widget.setValidator(QIntValidator(widget))
-        self._widget.setText(str(self.initial))
-        return widget
+        super(IntField, self).create_widget(parent)
+        self._widget.setValidator(QIntValidator(self._widget))
+        return self._widget
 
 
     def _update_view(self):
