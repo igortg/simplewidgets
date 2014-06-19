@@ -1,3 +1,4 @@
+from types import FunctionType
 from simplewidgets.observable.weakmethod import WeakMethod
 
 
@@ -17,16 +18,21 @@ class Observable(object):
 
 
     def attach(self, observer):
-        self._observers.append(WeakMethod(observer))
+        if isinstance(observer, FunctionType):
+            self._observers.append(observer)
+        else:
+            self._observers.append(WeakMethod(observer))
 
 
     def detach(self, observer):
-        for weakref in self._observers:
-            if weakref.ref() is observer:
-                break
+        for attached in self._observers:
+            if isinstance(attached, WeakMethod):
+                attached = attached.ref()
+            if attached is observer:
+                    break
         else:
             raise ValueError("Callable not attached")
-        self._observers.remove(weakref)
+        self._observers.remove(attached)
 
 
     def notify(self, *args, **kw):
