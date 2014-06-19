@@ -75,7 +75,7 @@ def test_simple_dialog(qtbot):
     assert widget.reject.called
 
 
-def  test_bind_data(qtbot):
+def test_bind_data(qtbot):
     widget = DemoBindWidget()
     demo_object = DemoObject()
     widget.set_data(demo_object)
