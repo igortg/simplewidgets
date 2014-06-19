@@ -1,7 +1,8 @@
-from simplewidgets.PyQt import QtCore
+from simplewidgets.PyQt.QtCore import SIGNAL
 import locale
 import weakref
 from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QComboBox
+from simplewidgets.observable.observable import Observable
 
 
 class BaseInputField(object):
@@ -33,11 +34,20 @@ class BaseInputField(object):
 
     def update_view(self):
         """
-        Update the widget contents with data
-
-        :param data:
+        Public method to update field UI based on data.
         """
-        raise NotImplementedError("update_view")
+        self._widget.blockSignals(True)
+        try:
+            self._update_view()
+        finally:
+            self._widget.blockSignals(False)
+
+
+    def _update_view(self):
+        """
+        Should be overridden to specify field UI updates.
+        """
+        raise NotImplementedError("_update_view")
 
 
     def get_value_from(self):
@@ -74,11 +84,11 @@ class LineTextField(BaseInputField):
         assert self._widget is None, "create_widget() must be called only once"
         self._widget = QLineEdit(parent)
         self._widget.setText(self.initial)
-        parent.connect(self._widget, QtCore.SIGNAL("editingFinished ()"), self.on_editing_finished)
+        parent.connect(self._widget, SIGNAL("editingFinished ()"), self.on_editing_finished)
         return self._widget
 
 
-    def update_view(self):
+    def _update_view(self):
         pass
 
 
@@ -100,7 +110,7 @@ class IntField(LineTextField):
         return widget
 
 
-    def update_view(self):
+    def _update_view(self):
         pass
 
 
@@ -117,21 +127,25 @@ class ChoiceField(BaseInputField):
     def __init__(self, choices, initial="", label=""):
         super(ChoiceField, self).__init__(initial, label)
         self._choices = choices
+        self.on_current_index_changed = Observable()
 
 
     def create_widget(self, parent):
         self._widget = QComboBox(parent)
+        self._widget.connect(self._widget, SIGNAL("currentIndexChanged(int)"), self._slot_current_index_changed)
         self.update_view()
         return self._widget
 
 
-    def update_view(self):
+    def _update_view(self):
+        self._widget.blockSignals(True)
         choices = self._get_choices()
         self._widget.clear()
         self._widget.addItems([choice[1] for choice in choices])
         if self.initial:
             values = [choice[0] for choice in choices]
             self._widget.setCurrentIndex(values.index(self.initial))
+        self._widget.blockSignals(False)
 
 
     def get_value_from(self):
@@ -156,3 +170,7 @@ class ChoiceField(BaseInputField):
             if not isinstance(choice, (list, tuple)):
                 choices[i] = (choice, str(choice))
         return choices
+
+
+    def _slot_current_index_changed(self, index):
+        self.on_current_index_changed.notify(index)
