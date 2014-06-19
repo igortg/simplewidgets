@@ -104,6 +104,8 @@ class LineTextField(BaseInputField):
 
 
     def _slot_editing_finished(self):
+        for instance, attr_name in self._bindings.items():
+            setattr(instance, attr_name, self.get_value_from())
         self.on_editing_finished.notify()
 
 
