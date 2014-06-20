@@ -3,7 +3,9 @@ SimpleWidgets
 
 Rapidly build GUI with Python and Qt
 
-## Simple Example
+### Simple Example
+
+The above code construct a dialog, waits for the user input and return window contents in a `namedtuple`.
 
 ```python
 from PySide.QtGui import QApplication
@@ -20,11 +22,12 @@ demo = DemoDialog()
 if demo.exec_accepted():
     data = demo.get_data()
 ```
-    
-This  code creates the window below. `get_data()` method returns a named tuple with attributes 'name', 'sex' and
-  'age' filled according to the user input. 
       
 ![Simple Example](doc/simple-example.png)
+
+    print data
+    >> SimpleData(name=u'', age=30, sex='Female')
+
 
 [![Build Status](https://travis-ci.org/itghisi/simplewidgets.svg?branch=master)](https://travis-ci.org/itghisi/simplewidgets)
 
