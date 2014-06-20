@@ -1,30 +1,32 @@
-from collections import namedtuple, OrderedDict
+from collections import namedtuple
 import warnings
 from simplewidgets.PyQt import QtGui, QtCore
 from simplewidgets.PyQt.QtCore import Qt
+from simplewidgets.PyQt.QtGui import QDialogButtonBox
 from simplewidgets.fields import BaseInputField
 
 
+# noinspection PyAttributeOutsideInit
 class BaseSimpleWidget(object):
 
     NUM_LAYOUT_COLS = 2
 
-    def __init__(self):
+    def setup_ui(self):
         fields_order = []
         #TODO: create Fields declared in base classes
         for attr_name, value in self.__class__.__dict__.items():
             if isinstance(value, BaseInputField):
                 fields_order.append((value.order, attr_name, value))
                 self._check_base_attributes_override(attr_name)
+        # Preserve the order in which Fields were declared
         self._sorted_field_names = []
+        self._layout = QtGui.QGridLayout(self)
+        self._field_widgets = {}
         for _, field_name, field in sorted(fields_order):
             setattr(self, field_name, field.create_copy(self))
             self._sorted_field_names.append(field_name)
-        # Preserve the order in which Fields were declared
-        self._layout = None
-        self._field_widgets = {}
+            self._create_field_line(field_name)
         self._data_type = namedtuple("SimpleData", self._sorted_field_names)
-        self.build_widget()
 
 
     def _get_field(self, field_name):
@@ -39,12 +41,6 @@ class BaseSimpleWidget(object):
 
     def fields(self):
         return [self._get_field(field_name) for field_name in self._sorted_field_names]
-
-
-    def build_widget(self, parent=None):
-        self._layout = QtGui.QGridLayout(self)
-        for field_name in self._sorted_field_names:
-            self._create_field_line(field_name)
 
 
     def _create_field_line(self, field_name):
@@ -99,7 +95,7 @@ class SimpleWidget(BaseSimpleWidget, QtGui.QWidget):
 
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
-        BaseSimpleWidget.__init__(self)
+        BaseSimpleWidget.setup_ui(self)
 
 
 class SimpleDialog(BaseSimpleWidget, QtGui.QDialog):
@@ -107,12 +103,7 @@ class SimpleDialog(BaseSimpleWidget, QtGui.QDialog):
 
     def __init__(self, parent=None):
         QtGui.QDialog.__init__(self, parent)
-        BaseSimpleWidget.__init__(self)
-
-
-    def build_widget(self, parent=None):
-        super(SimpleDialog, self).build_widget(parent)
-        QDialogButtonBox = QtGui.QDialogButtonBox
+        BaseSimpleWidget.setup_ui(self)
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self._layout.addWidget(self.button_box, self._layout.rowCount() + 1, 0, 1, self.NUM_LAYOUT_COLS)
         self.connect(self.button_box, QtCore.SIGNAL("accepted()"), self.accept)

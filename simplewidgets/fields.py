@@ -1,6 +1,8 @@
-from simplewidgets.PyQt.QtCore import SIGNAL
-import locale
 import weakref
+
+import locale
+
+from simplewidgets.PyQt.QtCore import SIGNAL
 from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QComboBox
 from simplewidgets.observable.observable import Observable
 
@@ -145,14 +147,12 @@ class ChoiceField(BaseInputField):
 
 
     def _update_view(self):
-        self._widget.blockSignals(True)
         choices = self._get_choices()
         self._widget.clear()
         self._widget.addItems([choice[1] for choice in choices])
         if self.initial:
             values = [choice[0] for choice in choices]
             self._widget.setCurrentIndex(values.index(self.initial))
-        self._widget.blockSignals(False)
 
 
     def get_value_from(self):
