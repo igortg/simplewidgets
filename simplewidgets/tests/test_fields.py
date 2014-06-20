@@ -42,7 +42,7 @@ def test_float_field(qtbot):
     qtbot.keyClick(widget, Qt.Key_Return)
     assert field.get_value_from() == 13.4
 
-    locale.setlocale(locale.LC_ALL, "pt_BR")
+    locale.setlocale(locale.LC_ALL, "de_DE")
     try:
         field = NumberField(23.2, display_format="%.2f")
         widget = field.create_widget(None)
