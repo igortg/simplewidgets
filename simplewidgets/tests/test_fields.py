@@ -1,3 +1,4 @@
+import pytest
 import mock
 import locale
 from pytestqt.qt_compat import Qt
@@ -42,6 +43,19 @@ def test_float_field(qtbot):
     qtbot.keyClick(widget, Qt.Key_Return)
     assert field.get_value_from() == 13.4
 
+
+def has_locale(loc):
+    try:
+        locale.setlocale(locale.LC_ALL, loc)
+        return  True
+    except locale.Error:
+        return False
+    finally:
+        locale.resetlocale()
+
+
+@pytest.mark.skipif("not has_locale('de_DE')")
+def test_float_field_i18n(qtbot):
     locale.setlocale(locale.LC_ALL, "de_DE")
     try:
         field = NumberField(23.2, display_format="%.2f")
