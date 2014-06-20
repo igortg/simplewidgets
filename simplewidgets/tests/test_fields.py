@@ -1,6 +1,7 @@
 import mock
+import locale
 from pytestqt.qt_compat import Qt
-from simplewidgets.fields import IntField, ChoiceField
+from simplewidgets.fields import IntField, ChoiceField, NumberField
 from simplewidgets.simple_widget import SimpleWidget
 
 
@@ -30,6 +31,29 @@ def test_int_field(qtbot):
     qtbot.keyClicks(widget, "20")
     qtbot.keyClick(widget, Qt.Key_Return)
     change_mock.assert_called_once_with()
+
+
+def test_float_field(qtbot):
+    field = NumberField(23.2, display_format="%.2f")
+    widget = field.create_widget(None)
+    assert widget.text() == "23.20"
+    widget.clear()
+    qtbot.keyClicks(widget, "13.4")
+    qtbot.keyClick(widget, Qt.Key_Return)
+    assert field.get_value_from() == 13.4
+
+    locale.setlocale(locale.LC_ALL, "pt_BR")
+    try:
+        field = NumberField(23.2, display_format="%.2f")
+        widget = field.create_widget(None)
+        assert widget.text() == "23,20"
+        widget.clear()
+        qtbot.keyClicks(widget, "13,4")
+        qtbot.keyClick(widget, Qt.Key_Return)
+        assert field.get_value_from() == 13.4
+    finally:
+        locale.resetlocale()
+
 
 
 

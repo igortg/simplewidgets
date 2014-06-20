@@ -3,15 +3,15 @@ import weakref
 import locale
 
 from simplewidgets.PyQt.QtCore import SIGNAL
-from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QComboBox
+from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QDoubleValidator, QComboBox
 from simplewidgets.observable.observable import Observable
 
 
 class BaseInputField(object):
-
     # _coubter is a global counter so UI fields could be created in the same order of their declarations
     # ref: http://stackoverflow.com/a/11317693/885117
     _counter = 0
+
 
     def __init__(self, initial="", label=""):
         self.order = self._counter
@@ -73,16 +73,13 @@ class BaseInputField(object):
         :rtype: BaseInputField
         """
         import copy
+
         field_instance = copy.copy(self)
         field_instance.simple_widget = weakref.proxy(simple_widget)
         return field_instance
 
 
-
 class LineTextField(BaseInputField):
-
-
-
     def __init__(self, initial="", label=""):
         super(LineTextField, self).__init__(initial, label)
         self.on_editing_finished = Observable()
@@ -91,10 +88,13 @@ class LineTextField(BaseInputField):
     def create_widget(self, parent):
         assert self._widget is None, "create_widget() must be called only once"
         self._widget = QLineEdit(parent)
-        #TODO: Create a method to widget content
-        self._widget.setText(str(self.initial))
+        self._display_value(self.initial)
         self._widget.connect(self._widget, SIGNAL("editingFinished ()"), self._slot_editing_finished)
         return self._widget
+
+
+    def _display_value(self, value):
+        self._widget.setText(value)
 
 
     def _update_view(self):
@@ -111,12 +111,41 @@ class LineTextField(BaseInputField):
         self.on_editing_finished.notify()
 
 
-class IntField(LineTextField):
+class NumberField(LineTextField):
+
+
+    _validator = QDoubleValidator
+
+    def __init__(self, initial="", label="", display_format="%s"):
+        super(NumberField, self).__init__(initial, label)
+        self._format = display_format
+
 
     def create_widget(self, parent):
-        super(IntField, self).create_widget(parent)
-        self._widget.setValidator(QIntValidator(self._widget))
+        super(NumberField, self).create_widget(parent)
+        self._widget.setValidator(self._validator(self._widget))
         return self._widget
+
+
+    def _display_value(self, value):
+        self._widget.setText(locale.format_string(self._format, value))
+
+
+    def _update_view(self):
+        pass
+
+
+    def get_value_from(self):
+        return locale.atof(self._widget.text())
+
+
+class IntField(NumberField):
+
+
+    _validator = QIntValidator
+
+    def __init__(self, initial="", label=""):
+        super(IntField, self).__init__(initial, label, "%d")
 
 
     def _update_view(self):
