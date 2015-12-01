@@ -1,9 +1,11 @@
+from collections import namedtuple
 import pytest
 import mock
 import locale
 from pytestqt.qt_compat import Qt
-from simplewidgets.fields import IntField, ChoiceField, NumberField
+from simplewidgets.fields import IntField, ChoiceField, NumberField, GroupField, Button
 from simplewidgets.simplewidget import SimpleWidget
+from simplewidgets.tests.demowidget import DemoWidget
 
 
 def test_choice_field(qtbot):
@@ -42,6 +44,24 @@ def test_float_field(qtbot):
     qtbot.keyClicks(widget, "13.4")
     qtbot.keyClick(widget, Qt.Key_Return)
     assert field.get_value_from() == 13.4
+
+
+def test_group_filed():
+    field = GroupField(DemoWidget)
+    widget = field.create_widget(None)
+    widget.show()
+    data = field.get_value_from()
+    assert isinstance(data, tuple)
+    assert len(data) == 5
+
+
+def test_button(qtbot):
+    slot = mock.Mock()
+    control = Button("Apply", slot)
+    widget = control.create_widget(None)
+    widget.show()
+    qtbot.mouseClick(widget, Qt.LeftButton)
+    slot.assert_called_with()
 
 
 def has_locale(loc):

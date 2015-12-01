@@ -1,9 +1,11 @@
+from __future__ import unicode_literals
 from collections import namedtuple
 import warnings
+from PyQt4.QtGui import QSizePolicy
 from simplewidgets.PyQt import QtGui, QtCore
 from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.PyQt.QtGui import QDialogButtonBox
-from simplewidgets.fields import BaseInputField
+from simplewidgets.fields import BaseInputField, BaseWidgetControl
 
 
 # noinspection PyAttributeOutsideInit
@@ -15,7 +17,7 @@ class BaseSimpleWidget(object):
         fields_order = []
         #TODO: create Fields declared in base classes
         for attr_name, value in self.__class__.__dict__.items():
-            if isinstance(value, BaseInputField):
+            if isinstance(value, BaseWidgetControl):
                 fields_order.append((value.order, attr_name, value))
                 self._check_base_attributes_override(attr_name)
         # Preserve the order in which Fields were declared
@@ -24,8 +26,9 @@ class BaseSimpleWidget(object):
         self._field_widgets = {}
         for _, field_name, field in sorted(fields_order):
             setattr(self, field_name, field.create_copy(self))
-            self._sorted_field_names.append(field_name)
             self._create_field_line(field_name)
+            if isinstance(field, BaseInputField):
+                self._sorted_field_names.append(field_name)
         self._data_type = namedtuple("SimpleData", self._sorted_field_names)
 
 
@@ -45,13 +48,18 @@ class BaseSimpleWidget(object):
 
     def _create_field_line(self, field_name):
         field = self._get_field(field_name)
-        label = QtGui.QLabel(self)
-        label.setText(field.label)
-        setattr(self, "{0}_label".format(field_name), label)
         row = self._layout.rowCount() + 1
-        self._layout.addWidget(label, row, 0)
         widget = field.create_widget(self)
-        self._layout.addWidget(widget, row, 1)
+        if hasattr(field, "label") and field.label:
+            label = QtGui.QLabel(self)
+            label.setText(field.label)
+            label.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
+            label.setBuddy(widget)
+            setattr(self, "{0}_label".format(field_name), label)
+            self._layout.addWidget(label, row, 0)
+            self._layout.addWidget(widget, row, 1)
+        else:
+            self._layout.addWidget(widget, row, 0, 2, 1)
         setattr(self, "{0}_widget".format(field_name), widget)
         self._field_widgets[field_name] = widget
 
@@ -60,7 +68,8 @@ class BaseSimpleWidget(object):
         field_values = {}
         for field_name in self._sorted_field_names:
             field = self._get_field(field_name)
-            field_values[field_name] = field.get_value_from()
+            if isinstance(field, BaseInputField):
+                field_values[field_name] = field.get_value_from()
         return self._data_type(**field_values)
 
 

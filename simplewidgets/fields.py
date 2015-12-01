@@ -1,26 +1,25 @@
+from __future__ import unicode_literals
 import weakref
 
 import locale
 
 from simplewidgets.PyQt.QtCore import SIGNAL
-from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QDoubleValidator, QComboBox
+from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QDoubleValidator, QComboBox, QGroupBox, QVBoxLayout, \
+    QPushButton
 from simplewidgets.observable.observable import Observable
+from simplewidgets.observable.weakmethod import WeakMethod
 
 
-class BaseInputField(object):
+class BaseWidgetControl(object):
     # _coubter is a global counter so UI fields could be created in the same order of their declarations
     # ref: http://stackoverflow.com/a/11317693/885117
     _counter = 0
 
-
-    def __init__(self, initial="", label=""):
+    def __init__(self):
         self.order = self._counter
-        BaseInputField._counter += 1
-        self.label = label
-        self.initial = initial
+        BaseWidgetControl._counter += 1
         self.simple_widget = None
         self._widget = None
-        self._bindings = weakref.WeakKeyDictionary()
 
 
     def create_widget(self, parent):
@@ -32,6 +31,31 @@ class BaseInputField(object):
         :rtype: QWidget
         """
         raise NotImplementedError("create_widget")
+
+
+    def create_copy(self, simple_widget):
+        """
+        BaseWidgetControl are always defined in the class level. This method is called to create a unique instance of
+        the BaseInputField to each instance of a SimpleWidget.
+
+        :param SimpleWidget simple_widget: the simple widget instance
+
+        :rtype: BaseInputField
+        """
+        import copy
+
+        field_instance = copy.copy(self)
+        field_instance.simple_widget = weakref.proxy(simple_widget)
+        return field_instance
+
+
+class BaseInputField(BaseWidgetControl):
+
+    def __init__(self, initial="", label=""):
+        super(BaseInputField, self).__init__()
+        self.label = label
+        self.initial = initial
+        self._bindings = weakref.WeakKeyDictionary()
 
 
     def update_view(self):
@@ -61,22 +85,6 @@ class BaseInputField(object):
 
     def bind_attribute(self, instance, attr_name):
         self._bindings[instance] = attr_name
-
-
-    def create_copy(self, simple_widget):
-        """
-        BaseInputFields are always defined in the class level. This method is called to create a unique instance of
-        the BaseInputField to each instance of a SimpleWidget.
-
-        :param SimpleWidget simple_widget: the simple widget instance
-
-        :rtype: BaseInputField
-        """
-        import copy
-
-        field_instance = copy.copy(self)
-        field_instance.simple_widget = weakref.proxy(simple_widget)
-        return field_instance
 
 
 class LineTextField(BaseInputField):
@@ -197,7 +205,7 @@ class ChoiceField(BaseInputField):
 
         :rtype: list
         """
-        if isinstance(self._choices, str):
+        if isinstance(self._choices, basestring):
             choices = getattr(self.simple_widget, self._choices)
         else:
             choices = self._choices
@@ -210,3 +218,72 @@ class ChoiceField(BaseInputField):
 
     def _slot_current_index_changed(self, index):
         self.on_current_index_changed.notify(index)
+
+
+class GroupField(BaseInputField):
+    """
+    Shows another SimpleWidget inside a Group Box.
+    """
+
+    def __init__(self, simple_widget_class, title=""):
+        """
+        Constructor
+
+        :param type simple_widget_class: a class derived from SimpleWidget
+
+        :param basestring title: the group box title
+        """
+        super(GroupField, self).__init__()
+        self._child_widget_class = simple_widget_class
+        self._title = title
+        self.child_widget = None
+
+
+    def create_widget(self, parent):
+        widget = QGroupBox(self._title, parent)
+        self.child_widget = self._child_widget_class(parent)
+        layout = QVBoxLayout()
+        layout.setMargin(4)
+        layout.addWidget(self.child_widget)
+        widget.setLayout(layout)
+        return widget
+
+
+    def get_value_from(self):
+        return self.child_widget.get_data()
+
+
+class Button(BaseWidgetControl):
+
+    def __init__(self, title, slot):
+        """
+        Constructor
+
+        :param unicode title: the button title
+
+        :param unicode slot: a call
+
+        :return:
+        """
+        super(Button, self).__init__()
+        self._title = title
+        self._slot = slot
+        self._slot_callable = None
+
+
+    def create_widget(self, parent):
+        widget = QPushButton(self._title, parent)
+        if isinstance(self._slot, str):
+            self._slot_callable = WeakMethod(getattr(parent, self._slot))
+        else:
+            self._slot_callable = self._slot
+        widget.connect(widget, SIGNAL("clicked()"), self._slot_clicked)
+        return widget
+
+
+    def _slot_clicked(self):
+        if isinstance(self._slot_callable, WeakMethod):
+            slot = self._slot_callable.ref()
+        else:
+            slot = self._slot_callable
+        slot()
