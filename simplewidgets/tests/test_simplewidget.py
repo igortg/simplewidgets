@@ -3,7 +3,7 @@ from mock import Mock
 from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.PyQt.QtGui import QWidget
 from simplewidgets.fields import LineTextField, IntField, ChoiceField
-from simplewidgets.simple_widget import SimpleDialog, BaseSimpleWidget
+from simplewidgets.simplewidget import SimpleDialog, BaseSimpleWidget
 
 
 class DemoObject(object):
@@ -70,15 +70,13 @@ def test_simple_widget(qtbot):
 
 def test_simple_dialog(qtbot):
     widget = DemoDialog()
-    widget.accept = Mock()
-    widget.reject = Mock()
     qtbot.addWidget(widget)
     widget.show()
     qtbot.keyClick(widget, Qt.Key_Enter)
-    assert widget.accept.called
+    assert widget.result() == widget.Accepted
     widget.show()
     qtbot.keyClick(widget, Qt.Key_Escape)
-    assert widget.reject.called
+    assert widget.result() == widget.Rejected
 
 
 def test_bind_data(qtbot):

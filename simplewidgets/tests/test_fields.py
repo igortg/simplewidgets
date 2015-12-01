@@ -3,7 +3,7 @@ import mock
 import locale
 from pytestqt.qt_compat import Qt
 from simplewidgets.fields import IntField, ChoiceField, NumberField
-from simplewidgets.simple_widget import SimpleWidget
+from simplewidgets.simplewidget import SimpleWidget
 
 
 def test_choice_field(qtbot):
