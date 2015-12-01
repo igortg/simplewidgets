@@ -8,14 +8,14 @@ Rapidly build GUI with Python and Qt
 The above code construct a dialog, waits for the user input and return window contents in a `namedtuple`.
 
 ```python
-from PySide.QtGui import QApplication
+from PyQt4.QtGui import QApplication
 from simplewidgets.fields import LineTextField, IntField, ChoiceField
-from simplewidgets.simple_widget import SimpleDialog
+from simplewidgets.simplewidget import SimpleDialog
 
 class DemoDialog(SimpleDialog):
     name = LineTextField(label="Name")
     age = IntField(30, label="Age")
-    sex = ChoiceField(["Male", "Female"], initial="Female", label="Sex")
+    gender = ChoiceField(["Male", "Female"], initial="Female", label="Gender")
 
 app = QApplication([])
 demo = DemoDialog()
@@ -26,7 +26,7 @@ if demo.exec_accepted():
 ![Simple Example](doc/simple-example.png)
 
     print data
-    >> SimpleData(name=u'', age=30, sex='Female')
+    >> SimpleData(name=u'', age=30, gender='Female')
 
 
 [![Build Status](https://travis-ci.org/itghisi/simplewidgets.svg?branch=master)](https://travis-ci.org/itghisi/simplewidgets)
