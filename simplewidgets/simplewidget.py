@@ -1,10 +1,9 @@
 from __future__ import unicode_literals
 from collections import namedtuple
 import warnings
-from PyQt4.QtGui import QSizePolicy
 from simplewidgets.PyQt import QtGui, QtCore
 from simplewidgets.PyQt.QtCore import Qt
-from simplewidgets.PyQt.QtGui import QDialogButtonBox
+from simplewidgets.PyQt.QtGui import QDialogButtonBox, QSizePolicy
 from simplewidgets.fields import BaseInputField, BaseWidgetControl
 
 
