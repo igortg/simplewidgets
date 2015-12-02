@@ -273,7 +273,7 @@ class Button(BaseWidgetControl):
 
     def create_widget(self, parent):
         widget = QPushButton(self._title, parent)
-        if isinstance(self._slot, str):
+        if isinstance(self._slot, basestring):
             self._slot_callable = WeakMethod(getattr(parent, self._slot))
         else:
             self._slot_callable = self._slot
