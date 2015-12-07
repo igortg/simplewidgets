@@ -63,3 +63,10 @@ def test_bind_data(qtbot):
     qtbot.keyClicks(widget.get_field_widget("name"), "John Doe")
     qtbot.keyClick(widget.get_field_widget("name"), Qt.Key_Enter)
     assert demo_object.name == "John Doe"
+
+
+def test_initial_values(qtbot):
+    widget = DemoDialog()
+    widget.name.set_value("Testname")
+    widget.show()
+    assert widget.name.widget.text() == "Testname"

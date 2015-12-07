@@ -19,7 +19,7 @@ class BaseWidgetControl(object):
         self.order = self._counter
         BaseWidgetControl._counter += 1
         self.simple_widget = None
-        self._widget = None
+        self.widget = None
 
 
     def create_widget(self, parent):
@@ -62,11 +62,11 @@ class BaseInputField(BaseWidgetControl):
         """
         Public method to update field UI based on data.
         """
-        self._widget.blockSignals(True)
+        self.widget.blockSignals(True)
         try:
             self._update_view()
         finally:
-            self._widget.blockSignals(False)
+            self.widget.blockSignals(False)
 
 
     def _update_view(self):
@@ -78,7 +78,7 @@ class BaseInputField(BaseWidgetControl):
 
     def get_value_from(self):
         """
-        Get a data value from the given widget.
+        Get a data value from the field widget.
         """
         raise NotImplementedError("get_value_from")
 
@@ -94,15 +94,15 @@ class LineTextField(BaseInputField):
 
 
     def create_widget(self, parent):
-        assert self._widget is None, "create_widget() must be called only once"
-        self._widget = QLineEdit(parent)
-        self._display_value(self.initial)
-        self._widget.connect(self._widget, SIGNAL("editingFinished ()"), self._slot_editing_finished)
-        return self._widget
+        assert self.widget is None, "create_widget() must be called only once"
+        self.widget = QLineEdit(parent)
+        self.set_value(self.initial)
+        self.widget.connect(self.widget, SIGNAL("editingFinished ()"), self._slot_editing_finished)
+        return self.widget
 
 
-    def _display_value(self, value):
-        self._widget.setText(value)
+    def set_value(self, value):
+        self.widget.setText(value)
 
 
     def _update_view(self):
@@ -110,7 +110,7 @@ class LineTextField(BaseInputField):
 
 
     def get_value_from(self):
-        return self._widget.text()
+        return self.widget.text()
 
 
     def _slot_editing_finished(self):
@@ -131,12 +131,12 @@ class NumberField(LineTextField):
 
     def create_widget(self, parent):
         super(NumberField, self).create_widget(parent)
-        self._widget.setValidator(self._validator(self._widget))
-        return self._widget
+        self.widget.setValidator(self._validator(self.widget))
+        return self.widget
 
 
-    def _display_value(self, value):
-        self._widget.setText(locale.format_string(self._format, value))
+    def set_value(self, value):
+        self.widget.setText(locale.format_string(self._format, value))
 
 
     def _update_view(self):
@@ -144,7 +144,7 @@ class NumberField(LineTextField):
 
 
     def get_value_from(self):
-        return locale.atof(self._widget.text())
+        return locale.atof(self.widget.text())
 
 
 class IntField(NumberField):
@@ -161,7 +161,7 @@ class IntField(NumberField):
 
 
     def get_value_from(self):
-        return locale.atoi(self._widget.text())
+        return locale.atoi(self.widget.text())
 
 
 class ChoiceField(BaseInputField):
@@ -177,23 +177,23 @@ class ChoiceField(BaseInputField):
 
 
     def create_widget(self, parent):
-        self._widget = QComboBox(parent)
-        self._widget.connect(self._widget, SIGNAL("currentIndexChanged(int)"), self._slot_current_index_changed)
+        self.widget = QComboBox(parent)
+        self.widget.connect(self.widget, SIGNAL("currentIndexChanged(int)"), self._slot_current_index_changed)
         self.update_view()
-        return self._widget
+        return self.widget
 
 
     def _update_view(self):
         choices = self._get_choices()
-        self._widget.clear()
-        self._widget.addItems([choice[1] for choice in choices])
+        self.widget.clear()
+        self.widget.addItems([choice[1] for choice in choices])
         if self.initial:
             values = [choice[0] for choice in choices]
-            self._widget.setCurrentIndex(values.index(self.initial))
+            self.widget.setCurrentIndex(values.index(self.initial))
 
 
     def get_value_from(self):
-        current_text = self._widget.currentText()
+        current_text = self.widget.currentText()
         for choice_value, text in self._get_choices():
             if current_text == text:
                 return choice_value

@@ -33,7 +33,7 @@ class BaseSimpleWidget(object):
 
     def _get_field(self, field_name):
         """
-        Get the Field object for the given name
+        Get the Field object for the given name.
 
         :param field_name: str
         :rtype: BaseInputField
@@ -64,6 +64,11 @@ class BaseSimpleWidget(object):
 
 
     def get_data(self):
+        """
+        Returns widget fields value.
+
+        :rtype: namedtuple
+        """
         field_values = {}
         for field_name in self._sorted_field_names:
             field = self._get_field(field_name)
@@ -79,7 +84,7 @@ class BaseSimpleWidget(object):
 
     def get_field_widget(self, attr_name):
         #TODO: fix protected access
-        return self._get_field(attr_name)._widget
+        return self._get_field(attr_name).widget
 
 
     def bind_data(self, field_name, instance, attr_name):
