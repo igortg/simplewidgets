@@ -70,7 +70,7 @@ def has_locale(loc):
         return  True
     except locale.Error:
         return False
-    finally:
+    else:
         locale.resetlocale()
 
 

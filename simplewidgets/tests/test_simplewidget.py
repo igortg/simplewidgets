@@ -14,15 +14,15 @@ class DemoObject(object):
 
 
 class DemoDialog(SimpleDialog):
-    name = LineTextField(label="Name")
+    full_name = LineTextField(label="Name")
 
 
 class DemoBindWidget(DemoWidget):
-    name = LineTextField(label="Name")
+    full_name = LineTextField(label="Name")
 
 
     def set_data(self, data):
-        self.bind_data("name", data, "name")
+        self.bind_data("full_name", data, "name")
 
 
 def test_simple_widget(qtbot):
@@ -67,6 +67,6 @@ def test_bind_data(qtbot):
 
 def test_initial_values(qtbot):
     widget = DemoDialog()
-    widget.name.set_value("Testname")
+    widget.full_name.set_value("Test name")
     widget.show()
-    assert widget.name.widget.text() == "Testname"
+    assert widget.full_name.widget.text() == "Test name"
