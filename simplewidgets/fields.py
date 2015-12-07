@@ -124,7 +124,7 @@ class NumberField(LineTextField):
 
     _validator = QDoubleValidator
 
-    def __init__(self, initial="", label="", display_format="%s"):
+    def __init__(self, initial="", label="", display_format="%5g"):
         super(NumberField, self).__init__(initial, label)
         self._format = display_format
 
