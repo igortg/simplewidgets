@@ -1,11 +1,8 @@
 from __future__ import unicode_literals
 import weakref
-
 import locale
-
 from simplewidgets.PyQt.QtCore import SIGNAL
-from simplewidgets.PyQt.QtGui import QLineEdit, QIntValidator, QDoubleValidator, QComboBox, QGroupBox, QVBoxLayout, \
-    QPushButton
+from simplewidgets.PyQt.QtGui import *
 from simplewidgets.observable.observable import Observable
 from simplewidgets.observable.weakmethod import WeakMethod
 
@@ -220,7 +217,7 @@ class ChoiceField(BaseInputField):
         self.on_current_index_changed.notify(index)
 
 
-class GroupField(BaseInputField):
+class InnerWidget(BaseInputField):
     """
     Shows another SimpleWidget inside a Group Box.
     """
@@ -233,7 +230,7 @@ class GroupField(BaseInputField):
 
         :param basestring title: the group box title
         """
-        super(GroupField, self).__init__()
+        super(InnerWidget, self).__init__()
         self._child_widget_class = simple_widget_class
         self._title = title
         self.child_widget = None
@@ -249,8 +246,41 @@ class GroupField(BaseInputField):
         return widget
 
 
+    def update_view(self):
+        self.child_widget.update_view()
+
+
     def get_value_from(self):
         return self.child_widget.get_data()
+
+
+    def set_value(self, **kwargs):
+        self.child_widget.set_data()
+
+
+class FormDivisor(BaseWidgetControl):
+    """
+    Draw a line
+    """
+
+    def __init__(self, title):
+        super(FormDivisor, self).__init__()
+        self._title = title
+
+
+    def create_widget(self, parent):
+        widget = QFrame(parent)
+        label = QLabel("<b>{}</b>".format(self._title, widget))
+        line = QFrame(widget)
+        line.setFrameShape(QFrame.HLine)
+        line.setFrameShadow(QFrame.Raised)
+        line.setSizePolicy(QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred))
+        layout = QHBoxLayout(widget)
+        layout.setMargin(0)
+        layout.addWidget(label)
+        layout.addWidget(line)
+        widget.setLayout(layout)
+        return widget
 
 
 class Button(BaseWidgetControl):

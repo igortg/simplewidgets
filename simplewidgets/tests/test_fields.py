@@ -3,7 +3,7 @@ import pytest
 import mock
 import locale
 from pytestqt.qt_compat import Qt
-from simplewidgets.fields import IntField, ChoiceField, NumberField, GroupField, Button
+from simplewidgets.fields import IntField, ChoiceField, NumberField, InnerWidget, Button
 from simplewidgets.simplewidget import SimpleWidget
 from simplewidgets.tests.demowidget import DemoWidget
 
@@ -46,13 +46,13 @@ def test_float_field(qtbot):
     assert field.get_value_from() == 13.4
 
 
-def test_group_filed():
-    field = GroupField(DemoWidget)
+def test_group_field():
+    field = InnerWidget(DemoWidget)
     widget = field.create_widget(None)
     widget.show()
     data = field.get_value_from()
     assert isinstance(data, tuple)
-    assert len(data) == 5
+    assert len(data) == 3
 
 
 def test_button(qtbot):
@@ -65,18 +65,20 @@ def test_button(qtbot):
 
 
 def has_locale(loc):
+    original = locale.getlocale()
     try:
         locale.setlocale(locale.LC_ALL, loc)
         return  True
     except locale.Error:
         return False
-    else:
-        locale.resetlocale()
+    finally:
+        locale.setlocale(locale.LC_ALL, original)
 
 
-@pytest.mark.skipif("not has_locale('de_DE')")
+@pytest.mark.skipif("not has_locale('Portuguese_Brazil.1252')")
 def test_float_field_i18n(qtbot):
-    locale.setlocale(locale.LC_ALL, "de_DE")
+    original = locale.getlocale()
+    locale.setlocale(locale.LC_ALL, "Portuguese_Brazil.1252")
     try:
         field = NumberField(23.2, display_format="%.2f")
         widget = field.create_widget(None)
@@ -86,7 +88,7 @@ def test_float_field_i18n(qtbot):
         qtbot.keyClick(widget, Qt.Key_Return)
         assert field.get_value_from() == 13.4
     finally:
-        locale.resetlocale()
+        locale.setlocale(locale.LC_ALL, original)
 
 
 

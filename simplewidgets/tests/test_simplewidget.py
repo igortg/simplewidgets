@@ -29,13 +29,14 @@ def test_simple_widget(qtbot):
     widget = DemoWidget()
     qtbot.addWidget(widget)
     widget.show()
-    qtbot.keyClicks(widget.name_widget, "John")
-    widget.age_widget.clear()
-    qtbot.keyClicks(widget.age_widget, "45")
+    qtbot.keyClicks(widget.full_name_widget, "John")
+    age_widget = widget.profile.child_widget.age.widget
+    age_widget.clear()
+    qtbot.keyClicks(age_widget, "45")
     data = widget.get_data()
     assert data[0] == "John"
-    assert data.age == 45
-    assert data.sex == 1
+    assert data.profile.age == 45
+    assert data.profile.sex == 1
     assert data.dynamic == 0
     widget.dynamic_choices = range(10, 20)
     widget.update_view()
@@ -60,8 +61,8 @@ def test_bind_data(qtbot):
     widget.set_data(demo_object)
     qtbot.addWidget(widget)
     widget.show()
-    qtbot.keyClicks(widget.get_field_widget("name"), "John Doe")
-    qtbot.keyClick(widget.get_field_widget("name"), Qt.Key_Enter)
+    qtbot.keyClicks(widget.full_name.widget, "John Doe")
+    qtbot.keyClick(widget.full_name.widget, Qt.Key_Enter)
     assert demo_object.name == "John Doe"
 
 

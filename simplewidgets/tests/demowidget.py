@@ -1,16 +1,22 @@
 from __future__ import unicode_literals
+from simplewidgets.simplewidget import SimpleWidget
+from simplewidgets.fields import InnerWidget
 from simplewidgets.PyQt.QtGui import QWidget
 from simplewidgets.fields import LineTextField, IntField, ChoiceField, Button
 from simplewidgets.simplewidget import BaseSimpleWidget
 
 
+class GroupData(SimpleWidget):
 
-class DemoWidget(QWidget, BaseSimpleWidget):
-
-    name = LineTextField(label="Name")
     age = IntField(30, label="Age")
     sex = ChoiceField([(0, "Male"), (1, "Female")], initial=1, label="Sex")
     education = ChoiceField(["Undergrad", "Grad"], initial="Grad", label="Education")
+
+
+class DemoWidget(QWidget, BaseSimpleWidget):
+
+    full_name = LineTextField(label="Name")
+    profile = InnerWidget(GroupData)
     dynamic = ChoiceField("dynamic_choices", label="Dynamic")
     apply = Button("Apply", "apply_")
 

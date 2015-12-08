@@ -24,10 +24,11 @@ class BaseSimpleWidget(object):
         self._layout = QtGui.QGridLayout(self)
         self._field_widgets = {}
         for _, field_name, field in sorted(fields_order):
-            setattr(self, field_name, field.create_copy(self))
-            self._create_field_line(field_name)
+            instance_field = field.create_copy(self)
+            setattr(self, field_name, instance_field)
             if isinstance(field, BaseInputField):
                 self._sorted_field_names.append(field_name)
+            self._create_field_line(field_name, instance_field)
         self._data_type = namedtuple("SimpleData", self._sorted_field_names)
 
 
@@ -38,6 +39,8 @@ class BaseSimpleWidget(object):
         :param field_name: str
         :rtype: BaseInputField
         """
+        if field_name not in self._sorted_field_names:
+            raise AttributeError("{0} has no field '{1}'".format(self.__class__.__name__, field_name))
         return getattr(self, field_name)
 
 
@@ -45,8 +48,7 @@ class BaseSimpleWidget(object):
         return [self._get_field(field_name) for field_name in self._sorted_field_names]
 
 
-    def _create_field_line(self, field_name):
-        field = self._get_field(field_name)
+    def _create_field_line(self, field_name, field):
         row = self._layout.rowCount() + 1
         widget = field.create_widget(self)
         if hasattr(field, "label") and field.label:
@@ -58,7 +60,7 @@ class BaseSimpleWidget(object):
             self._layout.addWidget(label, row, 0)
             self._layout.addWidget(widget, row, 1)
         else:
-            self._layout.addWidget(widget, row, 0, 2, 1)
+            self._layout.addWidget(widget, row, 0, 2, 2)
         setattr(self, "{0}_widget".format(field_name), widget)
         self._field_widgets[field_name] = widget
 
@@ -80,11 +82,6 @@ class BaseSimpleWidget(object):
     def update_view(self):
         for field in self.fields():
             field.update_view()
-
-
-    def get_field_widget(self, attr_name):
-        #TODO: fix protected access
-        return self._get_field(attr_name).widget
 
 
     def bind_data(self, field_name, instance, attr_name):
