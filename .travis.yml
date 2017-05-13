@@ -8,7 +8,7 @@ python:
 addons:
   apt:
     packages:
-      - python-pyside
+      - python-pyqt4
 
 virtualenv:
   system_site_packages: true  
@@ -18,7 +18,7 @@ install:
  # Xvfb
  - sudo apt-get install -y xvfb
  # PyQt
- - sudo apt-get install -qq python-qt4
+ - sudo apt-get install -y python-pyqt4
  # PyTest
  - pip install pytest
  - pip install pytest-qt
@@ -30,5 +30,6 @@ before_script:
 
 script:
  - python setup.py develop
+ - python -c "import PyQt4"
  - py.test
 
