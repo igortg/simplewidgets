@@ -1,6 +1,8 @@
-from __future__ import unicode_literals
 import weakref
 import locale
+
+import collections.abc
+
 from simplewidgets.PyQt.QtCore import SIGNAL
 from simplewidgets.PyQt.QtGui import *
 from simplewidgets.observable.observable import Observable
@@ -202,11 +204,11 @@ class ChoiceField(BaseInputField):
 
         :rtype: list
         """
-        if isinstance(self._choices, basestring):
+        if isinstance(self._choices, str):
             choices = getattr(self.simple_widget, self._choices)
         else:
             choices = self._choices
-        assert isinstance(choices, (list, tuple)), "choices has an invalid type"
+        assert isinstance(choices, collections.abc.Sequence), "choices has an invalid type"
         for i, choice in enumerate(choices):
             if not isinstance(choice, (list, tuple)):
                 choices[i] = (choice, str(choice))
@@ -303,7 +305,7 @@ class Button(BaseWidgetControl):
 
     def create_widget(self, parent):
         widget = QPushButton(self._title, parent)
-        if isinstance(self._slot, basestring):
+        if isinstance(self._slot, str):
             self._slot_callable = WeakMethod(getattr(parent, self._slot))
         else:
             self._slot_callable = self._slot

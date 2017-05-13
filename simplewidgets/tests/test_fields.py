@@ -46,7 +46,7 @@ def test_float_field(qtbot):
     assert field.get_value_from() == 13.4
 
 
-def test_group_field():
+def test_group_field(qtbot):
     field = InnerWidget(DemoWidget)
     widget = field.create_widget(None)
     widget.show()

@@ -1,5 +1,5 @@
 # coding=utf-8
-from types import BuiltinMethodType, MethodType
+import inspect
 import weakref
 
 
@@ -10,13 +10,10 @@ class WeakMethod(object):
 
 
     def __init__(self, bound):
-        if isinstance(bound, BuiltinMethodType):
+        if inspect.ismethod(bound):
             # Support for QObject instance methods
             self.weakself = weakref.proxy(bound.__self__)
             self.methodname = bound.__name__
-        elif isinstance(bound, MethodType):
-            self.weakself = weakref.proxy(bound.im_self)
-            self.methodname = bound.im_func.func_name
         else:
             raise TypeError("Bound type not supported")
 

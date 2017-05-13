@@ -37,11 +37,11 @@ def test_simple_widget(qtbot):
     assert data[0] == "John"
     assert data.profile.age == 45
     assert data.profile.sex == 1
-    assert data.dynamic == 0
-    widget.dynamic_choices = range(10, 20)
+    assert data.dynamic == "A"
+    widget.dynamic_choices = ["D", "E", "F"]
     widget.update_view()
     data = widget.get_data()
-    assert data.dynamic == 10
+    assert data.dynamic == "D"
 
 
 def test_simple_dialog(qtbot):

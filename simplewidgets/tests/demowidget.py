@@ -23,7 +23,7 @@ class DemoWidget(QWidget, BaseSimpleWidget):
 
     def __init__(self, parent=None):
         QWidget.__init__(self, parent)
-        self._dynamic_choices = range(10)
+        self._dynamic_choices = ["A", "B", "C"]
         self.setup_ui()
 
 
