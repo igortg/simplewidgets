@@ -8,7 +8,7 @@ python:
 addons:
   apt:
     packages:
-      - python-pyqt4
+      - python3-pyqt4
 
 virtualenv:
   system_site_packages: true  
@@ -18,7 +18,7 @@ install:
  # Xvfb
  - sudo apt-get install -y xvfb
  # PyQt
- - sudo apt-get install -y python-pyqt4
+ - sudo apt-get install -y python3-pyqt4
  # PyTest
  - pip install pytest
  - pip install pytest-qt
@@ -29,7 +29,7 @@ before_script:
  - sleep 3
 
 script:
- - python setup.py develop
- - python -c "import PyQt4"
+ - python3 setup.py develop
+ - python3 -c "import PyQt4"
  - py.test
 
