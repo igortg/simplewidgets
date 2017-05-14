@@ -1,8 +1,7 @@
-from collections import namedtuple
 import pytest
 import mock
 import locale
-from pytestqt.qt_compat import Qt
+from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.fields import IntField, ChoiceField, NumberField, InnerWidget, Button
 from simplewidgets.simplewidget import SimpleWidget
 from simplewidgets.tests.demowidget import DemoWidget
