@@ -29,5 +29,5 @@ if demo.exec_accepted():
     >> SimpleData(name=u'', age=30, gender='Female')
 
 
-[![Build Status](https://travis-ci.org/itghisi/simplewidgets.svg?branch=master)](https://travis-ci.org/itghisi/simplewidgets)
+[![Build Status](https://travis-ci.org/igortg/simplewidgets.svg?branch=master)](https://travis-ci.org/igortg/simplewidgets)
 
