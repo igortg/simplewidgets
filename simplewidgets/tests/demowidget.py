@@ -1,7 +1,7 @@
 from __future__ import unicode_literals
 from simplewidgets.simplewidget import SimpleWidget
 from simplewidgets.fields import InnerWidget
-from simplewidgets.PyQt.QtGui import QWidget
+from simplewidgets.PyQt.QtWidgets import QWidget
 from simplewidgets.fields import LineTextField, IntField, ChoiceField, Button
 from simplewidgets.simplewidget import BaseSimpleWidget
 

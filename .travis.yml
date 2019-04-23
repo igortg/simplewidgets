@@ -3,12 +3,12 @@ sudo: required
 dist: trusty
 
 python:
-  - 3.4
+  - 3.6
 
 addons:
   apt:
     packages:
-      - python3-pyqt4
+      - python3-pyqt5
 
 virtualenv:
   system_site_packages: true  
@@ -18,7 +18,7 @@ install:
  # Xvfb
  - sudo apt-get install -y xvfb
  # PyQt
- - sudo apt-get install -y python3-pyqt4
+ - sudo apt-get install -y python3-pyqt5
  # PyTest
  - pip install pytest
  - pip install pytest-qt
@@ -30,6 +30,6 @@ before_script:
 
 script:
  - python3 setup.py develop
- - python3 -c "import PyQt4"
+ - python3 -c "import PyQt5"
  - py.test
 

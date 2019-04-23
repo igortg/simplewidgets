@@ -1,9 +1,9 @@
 from __future__ import unicode_literals
 from collections import namedtuple
 import warnings
-from simplewidgets.PyQt import QtGui, QtCore
+from simplewidgets.PyQt import QtGui, QtWidgets
 from simplewidgets.PyQt.QtCore import Qt
-from simplewidgets.PyQt.QtGui import QDialogButtonBox, QSizePolicy
+from simplewidgets.PyQt.QtWidgets import QDialogButtonBox, QSizePolicy
 from simplewidgets.fields import BaseInputField, BaseWidgetControl
 
 
@@ -21,7 +21,7 @@ class BaseSimpleWidget(object):
                 self._check_base_attributes_override(attr_name)
         # Preserve the order in which Fields were declared
         self._sorted_field_names = []
-        self._layout = QtGui.QGridLayout(self)
+        self._layout = QtWidgets.QGridLayout(self)
         self._field_widgets = {}
         for _, field_name, field in sorted(fields_order):
             instance_field = field.create_copy(self)
@@ -52,7 +52,7 @@ class BaseSimpleWidget(object):
         row = self._layout.rowCount() + 1
         widget = field.create_widget(self)
         if hasattr(field, "label") and field.label:
-            label = QtGui.QLabel(self)
+            label = QtWidgets.QLabel(self)
             label.setText(field.label)
             label.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
             label.setBuddy(widget)
@@ -100,24 +100,24 @@ class BaseSimpleWidget(object):
                 warnings.warn("Field {0} is overwriting attribute from {1}".format(attr_name, base_class.__name__))
 
 
-class SimpleWidget(BaseSimpleWidget, QtGui.QWidget):
+class SimpleWidget(BaseSimpleWidget, QtWidgets.QWidget):
 
 
     def __init__(self, parent=None):
-        QtGui.QWidget.__init__(self, parent)
+        QtWidgets.QWidget.__init__(self, parent)
         BaseSimpleWidget.setup_ui(self)
 
 
-class SimpleDialog(BaseSimpleWidget, QtGui.QDialog):
+class SimpleDialog(BaseSimpleWidget, QtWidgets.QDialog):
 
 
     def __init__(self, parent=None):
-        QtGui.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent)
         BaseSimpleWidget.setup_ui(self)
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self._layout.addWidget(self.button_box, self._layout.rowCount() + 1, 0, 1, self.NUM_LAYOUT_COLS)
-        self.connect(self.button_box, QtCore.SIGNAL("accepted()"), self.accept)
-        self.connect(self.button_box, QtCore.SIGNAL("rejected()"), self.reject)
+        self.button_box.accepted.connect(self.accept)
+        self.button_box.rejected.connect(self.reject)
 
 
     def exec_accepted(self):

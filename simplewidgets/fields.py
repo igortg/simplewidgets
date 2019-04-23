@@ -3,8 +3,9 @@ import locale
 
 import collections.abc
 
-from simplewidgets.PyQt.QtCore import SIGNAL
-from simplewidgets.PyQt.QtGui import *
+from PyQt5.QtGui import QDoubleValidator, QIntValidator
+
+from simplewidgets.PyQt.QtWidgets import *
 from simplewidgets.observable.observable import Observable
 from simplewidgets.observable.weakmethod import WeakMethod
 
@@ -96,7 +97,7 @@ class LineTextField(BaseInputField):
         assert self.widget is None, "create_widget() must be called only once"
         self.widget = QLineEdit(parent)
         self.set_value(self.initial)
-        self.widget.connect(self.widget, SIGNAL("editingFinished ()"), self._slot_editing_finished)
+        self.widget.editingFinished.connect(self._slot_editing_finished)
         return self.widget
 
 
@@ -177,7 +178,7 @@ class ChoiceField(BaseInputField):
 
     def create_widget(self, parent):
         self.widget = QComboBox(parent)
-        self.widget.connect(self.widget, SIGNAL("currentIndexChanged(int)"), self._slot_current_index_changed)
+        self.widget.currentIndexChanged.connect(self._slot_current_index_changed)
         self.update_view()
         return self.widget
 
@@ -242,7 +243,7 @@ class InnerWidget(BaseInputField):
         widget = QGroupBox(self._title, parent)
         self.child_widget = self._child_widget_class(parent)
         layout = QVBoxLayout()
-        layout.setMargin(4)
+        layout.setContentsMargins(4, 4, 4, 4)
         layout.addWidget(self.child_widget)
         widget.setLayout(layout)
         return widget
@@ -309,7 +310,7 @@ class Button(BaseWidgetControl):
             self._slot_callable = WeakMethod(getattr(parent, self._slot))
         else:
             self._slot_callable = self._slot
-        widget.connect(widget, SIGNAL("clicked()"), self._slot_clicked)
+        widget.clicked.connect(self._slot_clicked)
         return widget
 
 
