@@ -54,7 +54,8 @@ class BaseSimpleWidget(object):
         if hasattr(field, "label") and field.label:
             label = QtWidgets.QLabel(self)
             label.setText(field.label)
-            label.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.MinimumExpanding))
+            label.setSizePolicy(QSizePolicy(QSizePolicy.Minimum, QSizePolicy.Minimum))
+            widget.setSizePolicy(QSizePolicy(QSizePolicy.MinimumExpanding, QSizePolicy.Minimum))
             label.setBuddy(widget)
             setattr(self, "{0}_label".format(field_name), label)
             self._layout.addWidget(label, row, 0)
@@ -110,15 +111,13 @@ class SimpleWidget(BaseSimpleWidget, QtWidgets.QWidget):
 
 class SimpleDialog(BaseSimpleWidget, QtWidgets.QDialog):
 
-
     def __init__(self, parent=None):
-        QtWidgets.QDialog.__init__(self, parent)
+        QtWidgets.QDialog.__init__(self, parent, Qt.WindowCloseButtonHint)
         BaseSimpleWidget.setup_ui(self)
         self.button_box = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel, Qt.Horizontal, self)
         self._layout.addWidget(self.button_box, self._layout.rowCount() + 1, 0, 1, self.NUM_LAYOUT_COLS)
         self.button_box.accepted.connect(self.accept)
         self.button_box.rejected.connect(self.reject)
 
-
     def exec_accepted(self):
-        return self.exec_() == QtGui.QDialog.Accepted
+        return self.exec_() == self.Accepted
