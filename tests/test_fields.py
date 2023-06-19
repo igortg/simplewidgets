@@ -1,10 +1,10 @@
 import pytest
-import mock
+from unittest import mock
 import locale
 from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.fields import IntField, ChoiceField, NumberField, InnerWidget, Button
 from simplewidgets.simplewidget import SimpleWidget
-from simplewidgets.tests.demowidget import DemoWidget
+from demowidget import DemoWidget
 
 
 def test_choice_field(qtbot):

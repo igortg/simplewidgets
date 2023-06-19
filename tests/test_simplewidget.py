@@ -2,7 +2,7 @@ from __future__ import unicode_literals
 from simplewidgets.PyQt.QtCore import Qt
 from simplewidgets.fields import LineTextField
 from simplewidgets.simplewidget import SimpleDialog
-from simplewidgets.tests.demowidget import DemoWidget
+from demowidget import DemoWidget
 
 
 class DemoObject(object):
