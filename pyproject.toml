@@ -1,0 +1,21 @@
+[project]
+name = "simplewidgets"
+version = "0.1.1"
+authors = [
+    {name = "Igor T. Ghisi", email = "dev@igortg.com"},
+]
+description = "Rapidly build dialogs with Python and Qt"
+license = {file = "LICENSE"}
+keywords = ["Qt"]
+classifiers = [
+    'Development Status :: 3 - Alpha',
+    'Intended Audience :: Developers',
+    'License :: OSI Approved :: GNU Lesser General Public License v3 (LGPLv3)',
+    'Operating System :: OS Independent',
+    "Programming Language :: Python :: 3",
+    'Topic :: Software Development :: User Interfaces',
+]
+
+[tool.setuptools.packages.find]
+# All the following settings are optional:
+include = ["simplewidgets*"]  # ["*"] by default
